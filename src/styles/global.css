@@ -150,6 +150,7 @@ p {
 	background: rgba(var(--gray-light), 0.5);
 	font-weight: 700;
 	color: rgb(var(--gray-dark));
+	text-align: center;
 }
 .prose tbody tr:nth-child(even) {
 	background: rgba(var(--gray-light), 0.2);
