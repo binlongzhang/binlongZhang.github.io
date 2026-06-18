@@ -1,12 +1,10 @@
 ---
 title: 'Creational Pattern'
-pubDate: 2021-05-01
+pubDate: 2023-05-01
 description: '创建型设计模式概览'
 author: 'binlong Zhang'
 tags: ["Design Pattern", "创建型模式", "设计模式"]
 ---
-
-
 # Simple Factory
 
 > - 也叫 Static Factory Method 模式
@@ -16,12 +14,12 @@ tags: ["Design Pattern", "创建型模式", "设计模式"]
 ## 结构
 
 - Factory
-   - 负责创建所有实例
+  - 负责创建所有实例
 - Product
-   - 所有创建对象的父类
-   - 描述所有实例公共接口
+  - 所有创建对象的父类
+  - 描述所有实例公共接口
 - Concrete Product
-   - 具体的产品，是Producet的实例
+  - 具体的产品，是Producet的实例
 
 ![SimpleFactory.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/1455047/1681218004203-3f930946-d85f-412e-aff8-1198d08b8ca0.jpeg#averageHue=%23ebe3d4&clientId=ub6f56dad-1e85-4&from=drop&id=ua46767ed&originHeight=422&originWidth=675&originalType=binary&ratio=1&rotation=0&showTitle=false&size=33349&status=done&style=none&taskId=u4ac61315-22a9-4dd8-967c-18517d4d6d6&title=)
 
@@ -71,8 +69,8 @@ tags: ["Design Pattern", "创建型模式", "设计模式"]
 
 > - 工厂方法模式中，具体的工厂负责审查具体的产品，每个工厂对应一个具体产品，有时候，我们需要一个共产提供多个产品
 > - 引入两个概念
->    - 产品等级结构，即产品的继承结构
->    - 产品族，同一工厂生产的，谓语不同产品等级中的一组产品
+>   - 产品等级结构，即产品的继承结构
+>   - 产品族，同一工厂生产的，谓语不同产品等级中的一组产品
 > - 适用于系统提供的工厂所需生产的不是简单对象，而是位于不同产品结构中不同类型的具体产品
 > - 与工厂方法模式相比，最大区别在于其针对一个产品等级结构，而抽象工厂模式则面对多个产品等级结构
 
@@ -80,7 +78,7 @@ tags: ["Design Pattern", "创建型模式", "设计模式"]
 
 - Abstract Factory
 - Concrete Factory
-- Abstract Product 
+- Abstract Product
 - Product
 
 ![AbatractFactory.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/1455047/1681220759736-054877eb-bcd2-4282-b2ae-4244a1ebb50d.jpeg#averageHue=%23f5f3f0&clientId=u01bce83c-b30e-4&from=drop&id=uf4f7beeb&originHeight=574&originWidth=835&originalType=binary&ratio=1&rotation=0&showTitle=false&size=56351&status=done&style=none&taskId=u5c509659-0a15-4823-984b-94d4e5694f4&title=)
@@ -176,4 +174,3 @@ tags: ["Design Pattern", "创建型模式", "设计模式"]
 
 - 当你的代码不应该依赖于具体你想拷贝的类对象
 - 当你想减少子类数量，他们的不同仅仅是在初始化方式上有所不同_（通常来说，当你有一个复杂对象要初始化多次，你可以设计配置类来用于初始化复杂对象）_
-

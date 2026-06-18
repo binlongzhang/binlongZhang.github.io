@@ -1,11 +1,10 @@
 ---
 title: 'Behavioral Pattern'
-pubDate: 2021-05-03
+pubDate: 2023-05-03
 description: '行为型设计模式概览'
 author: 'binlong Zhang'
 tags: ["Design Pattern", "行为型模式", "设计模式"]
 ---
-
 # Chain of Resposibility
 
 > - 收到请求后，每个处理者均对请求进行处理，或者将其传递给链上的下一个处理者
@@ -64,12 +63,12 @@ tags: ["Design Pattern", "行为型模式", "设计模式"]
 ![structure-indexed.png](https://cdn.nlark.com/yuque/0/2023/png/1455047/1681307479285-1c31df67-5789-4c44-a83a-ba72e70b6242.png#averageHue=%23889c88&clientId=udcddbdf5-ada7-4&from=drop&id=u031a0985&originHeight=390&originWidth=640&originalType=binary&ratio=1&rotation=0&showTitle=false&size=14770&status=done&style=none&taskId=u4fdc61e7-c91d-48f2-a5b2-f83e4204c25&title=)
 ![example.png](https://cdn.nlark.com/yuque/0/2023/png/1455047/1681308595469-743cab69-05db-46f4-bab3-50b4045b9794.png#averageHue=%238ca18f&clientId=udcddbdf5-ada7-4&from=drop&id=u2c9db820&originHeight=600&originWidth=640&originalType=binary&ratio=1&rotation=0&showTitle=false&size=19293&status=done&style=none&taskId=ue0a22091-5786-40bc-a593-11a56358271&title=)
 
-| Invoker | Button |
-| --- | --- |
-| Comand | Command |
+| Invoker          | Button                      |
+| ---------------- | --------------------------- |
+| Comand           | Command                     |
 | Concrete Command | copy/cut/paste/undo Command |
-| Receiver | Editor |
-| Client | Application |
+| Receiver         | Editor                      |
+| Client           | Application                 |
 
 ## 特点
 
@@ -139,7 +138,7 @@ tags: ["Design Pattern", "行为型模式", "设计模式"]
 
 > - 允许不暴露对象实现细节的情况下保存和回复对象之前的状态
 > - 建议将对象状态存储在memento的特殊对象中，禁止其他无关对象直接访问memento，必须通过受限的接口与之交互
-> 
+>
 > 1. 对象自己产生历史对象
 > 2. 严格封装，确保历史不被修改
 
@@ -288,4 +287,3 @@ tags: ["Design Pattern", "行为型模式", "设计模式"]
 - 你需要对一个复杂对象结构中的元素执行某些操作
 - 清理辅助行为的业务逻辑
 - 某个行为仅在类惩戒结构中的一些类中有意义，其他类中没意义时
-

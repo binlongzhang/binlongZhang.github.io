@@ -1,6 +1,6 @@
 ---
 title: 'Structural Pattern'
-pubDate: 2021-05-02
+pubDate: 2023-05-02
 description: '结构型设计模式概览'
 author: 'binlong Zhang'
 tags: ["Design Pattern", "结构型模式", "设计模式"]
