@@ -1,7 +1,7 @@
 ---
 title: 'Vim'
 pubDate: 2022-04-04
-description: '简要介绍 Vim 的用法和常见命令'
+description: 'Vim常见命令'
 author: 'binlong Zhang'
 tags: ["Vim", "tools", "编辑器"]
 ---

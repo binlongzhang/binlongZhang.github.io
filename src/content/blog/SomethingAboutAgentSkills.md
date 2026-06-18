@@ -1,7 +1,7 @@
 ---
 title: 'Something about Agent Skills'
 pubDate: 2026-02-05
-description: 'Agent Skills (Anthropic) 调研分享'
+description: 'Agent Skills调研总结'
 author: 'binlong Zhang'
 tags: ["Anthropic", "LLM Engineering", "AI Coding", "Agent", "Agent Skills"]
 ---

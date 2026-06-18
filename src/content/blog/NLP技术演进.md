@@ -1,10 +1,11 @@
 ---
 title: 'NLP技术演进'
 pubDate: 2021-04-04
-description: '简述了 NLP 技术近年来的发展流程'
+description: '简述NLP技术近年来技术演进'
 author: 'binlong Zhang'
 tags: ["NLP", "技术演进", "深度学习"]
 ---
+> description: '简述NLP技术近年来技术演进'
 
 # Basic
 

@@ -1,7 +1,7 @@
 ---
 title: 'GDB'
 pubDate: 2021-04-04
-description: '简要介绍 GDB 的用法和常见命令'
+description: 'GDB使用'
 author: 'binlong Zhang'
 tags: ["GDB", "tools", "C/C++", "调试"]
 ---
@@ -11,6 +11,7 @@ GDB（GNU Debugger）是GCC的调试工具
 
 GDB主要调试的是C/C++的程序。首先在编译时, 必须要把调试信息加到可执行文件中。使用编译器（cc/gcc/g++）的 -g 参数实现
 注意：-g 是在可执行程序中加入源码信息，并非将整个源文件嵌入可执行程序。因此调试时候源文件必须仍旧存在；
+
 ```bash
 gcc -g hello.c -o hello
 # 如果没有-g, 你将看不见程序的函数名、变量名, 所代替的全是运行时的内存地址
@@ -97,10 +98,12 @@ set var i=1     # 修改变量参数
 show follow-fork-mode
 set follow-fork-mode [parent(默认) | child]
 ```
+
 ```c
 show detach-on-fork
 set detach-on-fork [on(默认) | off]
 ```
+
 ```c
 info inferiors
 inferior id

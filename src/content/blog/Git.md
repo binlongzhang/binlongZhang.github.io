@@ -1,7 +1,7 @@
 ---
 title: 'Git'
 pubDate: 2021-04-04
-description: '讲解git的有关使用和原理'
+description: 'git基础'
 author: 'binlong Zhang'
 tags: ["Git", "tools"]
 ---

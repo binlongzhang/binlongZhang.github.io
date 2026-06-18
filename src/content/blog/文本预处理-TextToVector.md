@@ -1,11 +1,11 @@
 ---
-title: '文本预处理-TextToVector'
+title: 'nlp-preprocessing'
 pubDate: 2021-04-04
-description: '讲解 Text To Vector 的基本原理和操作过程及结果'
+description: ''
 author: 'binlong Zhang'
-tags: ["NLP", "文本预处理", "Text2Vec", "词向量"]
+tags: ["NLP", "Text2Vec"]
 ---
-
+> 简述nlp文本预处理的基本原理和操作过程
 # Text To Vector
 
 ## one-hot vector

@@ -1,10 +1,12 @@
 ---
 title: 'logistic回归&最大熵模型'
 pubDate: 2020-02-17
-description: '介绍 logistic 回归模型，利用最大熵原理来解释 logistic 回归，再从中进一步抽象出更加通用的"最大熵模型"，对最大熵模型进行推导，证明其合理性，并给出具体的使用方法，还会用最大熵模型来推导出 logistic 回归，以此作为最大熵模型示例'
+description: '简单总结logistic的基本原理'
 author: 'binlong Zhang'
-tags: ["机器学习", "统计学习方法", "攻克'小蓝书'", "logistic回归", "最大熵模型", "原理", "学习笔记"]
+tags: ["机器学习", "统计学习方法", "logistic回归", "最大熵模型",  "学习笔记"]
 ---
+
+> 介绍 logistic 回归模型，利用最大熵原理来解释 logistic 回归，再从中进一步抽象出更加通用的"最大熵模型"，对最大熵模型进行推导，证明其合理性，并给出具体的使用方法，还会用最大熵模型来推导出 logistic 回归，以此作为最大熵模型示例
 
 # logistic回归模型
 
@@ -28,16 +30,8 @@ $$
 
 $$
 \begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
 p(Y=1|x)=\frac{\exp(w\cdot x+b)}{1+\exp(w\cdot x+b)}
 p(Y=0|x)=\frac1{1+\exp(w\cdot x+b)}
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
 \end{aligned}
 $$
 
@@ -45,16 +39,8 @@ $$
 
 $$
 \begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
 p(Y=1|x)=\frac{\exp(w\cdot x)}{1+\exp(w\cdot x)}
 p(Y=0|x)=\frac1{1+\exp(w\cdot x)}
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
 \end{aligned}
 $$
 
@@ -92,16 +78,8 @@ $$
 
 $$
 \begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
 L(w)=\sum\limits ^N_{i=1}[y_i\log\pi(x_i)+(1-y_i)\log(1-\pi(x_i))]     \\
 =\sum\limits^N_{i=1}[y_i(w\cdot x_i)-\log(1+\exp(w\cdot x_i)]    \\
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
 \end{aligned}
 $$
 
@@ -144,37 +122,24 @@ $$
 对于给定训练数据集
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 \hat P(X=x,Y=y)=\frac{v(X=x,Y=y)}N     \\
 \hat P(X=x)=\frac{v(X=x)}N     \\
 \text{其中}v(X=x,Y=y)\text{表示样本}(x,y)\text{出现的频数};    \\
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
 特征函数$f(x,y)$定义
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 f(x)=\left\{ \begin{aligned}
 1,&\,\,x\text{与}y\text{满足某一事实}
 0,&\,\text{否则}
 \end{aligned}\right.    \\
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
 \end{aligned}
 $$
 
@@ -217,36 +182,24 @@ $$
 对于给定的训练数据集$T$以及特征函数$f_i(x,y),i=1,2,\cdots,n$,最大熵模型的学习等价于约束最优化问题
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 \max\limits_{p\in C}\,H(P)=-\sum\limits_{x,y}\hat P(x)P(y|x)\log P(y|x)     \\
 & s.t.\,\,\,\,\,E_p(f_i)=E_{\hat p}(f_i),\,i=1,2,\cdots,n     \\
 \sum_yP(y|x)=1    \\
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
 按照习惯可以将其等价的改为最小值问题
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 \max\limits_{p\in C}\,H(P)=-\sum\limits_{x,y}\hat P(x)P(y|x)\log P(y|x)     \\
 & s.t.\,\,\,\,\,E_p(f_i)=E_{\hat p}(f_i),\,i=1,2,\cdots,n     \\
 \sum_yP(y|x)=1    \\
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
@@ -259,17 +212,11 @@ $$
 引入拉格朗日乘子$w_0,w_1,\cdots,w_n$,定义拉格朗日函数$L(P,w)$;
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 L(P,w)\equiv-H(P)+w_0(1-\sum\limits_yP(y|x))+\sum\limits^n_{i=1}w_i(E_\hat p(f_i)-E_p(f_i))     \\
 =\sum\limits_{x,y}\hat P(x)P(y|x)\log P(y|x)+w_0(1-\sum_yP(y|x))+\sum^n_{i=1}w_i(\sum\limits_{x,y}\hat P(x,y)f_i(x,y)-\sum_{x,y}\hat P(x)P(y|x)f_i(x,y))    \\
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
@@ -306,17 +253,11 @@ $$
 由于$\sum\limits_yP(y|x)=1$,得
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 P_w(y|x)=\frac1{Z_w(x)}\exp(\sum\limits^n_{i=1}w_if_i(x,y))     \\
 \text{其中},\,\,\,Z_w(x)=\sum\limits_y\exp(\sum^n_{i=1}w_if_i(x,y))    \\
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
@@ -358,19 +299,13 @@ $$
 事实上，定义特征函数，其中$g(x)$为提取出每个x的特征，，输出是$x$的特征向量：
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 \left\{\begin{aligned}
 &g(x),y=1     \\
 &0,\quad y=0     \\
 \end{aligned}\right.    \\
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
@@ -389,17 +324,11 @@ $$
 同理
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 P(y=0|x)=\frac{\exp(w_i\cdot0)}{\exp(w_ig(x))+\exp(w_i*0)}
 =\frac1{\exp(w_ig(x))+1}
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
@@ -447,19 +376,13 @@ $$
 则
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 -\sum\limits_x\hat P(x)\log\frac{Z_{w+\delta}(x)}{Z_w(x)}
 \geq\sum_x\hat P(x)(1-\frac{Z_{w+\delta}(x)}{Z_w(x)})     \\
 \geq\sum_x\hat P(x)-\sum_x\hat P(x)\frac{Z_{w+\delta}(x)}{Z_w(x)}
 \geq1-\sum_x\hat P(x)\frac{Z_{w+\delta}(x)}{Z_w(x)}
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
@@ -609,17 +532,11 @@ $$
 6. 计算$g_{k+1} = g(w^{(k+1)})$,若$||g_k||<\epsilon$,则停止计算，得$w^*=w^{(k)}$,否则求出$B_{k+1}$
 
 $$
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
-\begin{aligned}
+
 \begin{aligned}
 B_{k+1}=B_k+\frac{y_ky_k^T}{y^T_k\delta_k}-\frac{B_k\delta_k\delta_k^TB_k}{\delta^T_kB_k\delta_k}
 \text{其中},y_k=g_{k+1}-g_k,\delta_k=w^{(k+1)}-w^{(k)}
-\end{aligned}
-\end{aligned}
-\end{aligned}
-\end{aligned}
+
 \end{aligned}
 $$
 
