@@ -16,7 +16,7 @@ const tocHeadings = headings.filter(h => h.depth >= 1 && h.depth <= 3);
 ---
 
 {tocHeadings.length > 0 && (
-	<nav class="toc expanded" aria-label="Table of Contents">
+	<nav class="toc" aria-label="Table of Contents">
 		<button class="toc-tab" aria-label="展开/收起目录">
 			<span class="toc-tab-label toc-label-expand">展开目录</span>
 			<span class="toc-tab-label toc-label-collapse">收起目录</span>
@@ -189,8 +189,15 @@ const tocHeadings = headings.filter(h => h.depth >= 1 && h.depth <= 3);
 		border-left-color: rgb(var(--accent-rgb));
 	}
 
-	/* 屏幕小于 1400px 时隐藏目录 */
-	@media (max-width: 1400px) {
+	/* 屏幕小于 1200px 时默认收起目录 */
+	@media (max-width: 1200px) {
+		.toc.expanded {
+			/* 取消默认展开状态 */
+		}
+	}
+
+	/* 屏幕小于 768px（手机）时完全隐藏目录 */
+	@media (max-width: 768px) {
 		.toc {
 			display: none;
 		}
@@ -203,10 +210,36 @@ const tocHeadings = headings.filter(h => h.depth >= 1 && h.depth <= 3);
 	const tocNav = document.querySelector('.toc');
 
 	if (tocTab && tocNav) {
+		// 初始化：宽屏（>1200px）默认展开
+		if (window.innerWidth > 1200) {
+			tocNav.classList.add('expanded');
+		}
+
+		// 点击切换
 		tocTab.addEventListener('click', () => {
 			tocNav.classList.toggle('expanded');
 		});
+
+		// 窗口大小改变时调整状态
+		window.addEventListener('resize', () => {
+			if (window.innerWidth > 1200 && !tocNav.classList.contains('expanded')) {
+				tocNav.classList.add('expanded');
+			}
+		});
 	}
+
+	// 同步正文标题的渲染内容到侧边栏（让侧边栏显示 KaTeX 公式等）
+	document.querySelectorAll('.toc-list a').forEach((link) => {
+		const href = link.getAttribute('href');
+		if (href && href.startsWith('#')) {
+			const headingId = href.slice(1);
+			const heading = document.getElementById(headingId);
+			if (heading) {
+				// 复制标题的实际渲染内容（包括 KaTeX HTML）到侧边栏链接
+				link.innerHTML = heading.innerHTML;
+			}
+		}
+	});
 
 	// 高亮当前阅读位置
 	const observer = new IntersectionObserver((entries) => {

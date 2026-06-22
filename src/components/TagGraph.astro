@@ -52,49 +52,14 @@ const graphData = { nodes, links };
 		</div>
 	</div>
 
-	<div id="tag-graph" class="graph-canvas">
-		<svg id="tag-graph-svg" aria-label="文章与标签关系图"></svg>
-		<canvas id="spark-canvas" aria-hidden="true"></canvas>
-		<div id="graph-tooltip" class="graph-tooltip" role="tooltip"></div>
+	<div class="graph-canvas-wrapper">
+		<div id="tag-graph" class="graph-canvas">
+			<svg id="tag-graph-svg" aria-label="文章与标签关系图"></svg>
+			<canvas id="spark-canvas" aria-hidden="true"></canvas>
+			<div id="graph-tooltip" class="graph-tooltip" role="tooltip"></div>
 
-		<div class="graph-toolbar">
-			<input
-				id="graph-search"
-				type="search"
-				placeholder="搜索标签或文章…"
-				autocomplete="off"
-				spellcheck="false"
-			/>
-			<div class="graph-legend" role="group" aria-label="筛选节点类型">
-				<div class="legend-item">
-					<button
-						type="button"
-						class="dot-btn dot-post is-active"
-						data-filter="post"
-						aria-label="切换文章可见"
-						title="点击切换文章"
-					></button>
-					<span class="legend-label">文章</span>
-				</div>
-				<div class="legend-item">
-					<button
-						type="button"
-						class="dot-btn dot-tag is-active"
-						data-filter="tag"
-						aria-label="切换标签可见"
-						title="点击切换标签"
-					></button>
-					<span class="legend-label">标签</span>
-				</div>
-				<button id="graph-reset" type="button" title="重置视图" aria-label="重置视图">
-					<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-						<path fill="currentColor" d="M8 3V1L4 4l4 3V5a3 3 0 1 1-3 3H3a5 5 0 1 0 5-5z"/>
-					</svg>
-				</button>
-			</div>
+			<p class="graph-hint">拖拽 · 滚轮缩放 · 点击文章跳转 · 点击标签高亮相关</p>
 		</div>
-
-		<p class="graph-hint">拖拽 · 滚轮缩放 · 点击文章跳转 · 点击标签高亮相关</p>
 	</div>
 </div>
 
@@ -107,18 +72,17 @@ const graphData = { nodes, links };
 		flex-direction: column;
 		align-items: center;
 		flex: 1;
-		padding: 1.5rem 0;
+		padding: 0.75rem 0;
 		box-sizing: border-box;
 		min-height: 0;
 	}
 
-	/* 欢迎语容器：在页面中居中 */
+	/* 欢迎语容器：居中显示 */
 	.graph-hero {
 		flex-shrink: 0;
 		width: 100%;
-		max-width: min(90vw, 1600px);
-		margin-bottom: 1.5rem;
-		padding: 0;
+		max-width: min(95vw, 1800px);
+		margin-bottom: 0.75rem;
 		animation: hero-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 		font-family: Georgia, 'Songti SC', 'STSong', serif;
 		display: flex;
@@ -130,12 +94,21 @@ const graphData = { nodes, links };
 		grid-template-columns: 3fr 7fr;
 	}
 
+	/* 画布容器：宽度接近欢迎语 */
+	.graph-canvas-wrapper {
+		flex: 1;
+		width: 100%;
+		max-width: min(95vw, 1800px);
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+	}
+
 	/* 画布：占剩余空间,带边框 */
 	.graph-canvas {
 		flex: 1;
 		width: 100%;
-		max-width: min(90vw, 1600px);
-		margin: 0 auto 2rem;
+		margin: 0;
 		border: 2px solid rgba(120, 120, 120, 0.3);
 		border-radius: 8px;
 		position: relative;
@@ -191,91 +164,7 @@ const graphData = { nodes, links };
 		to { opacity: 1; transform: translateY(0); }
 	}
 
-	/* 浮动工具栏：右上角胶囊条，不再占据文档流 */
-	.graph-toolbar {
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		display: flex;
-		align-items: center;
-		gap: 0.55rem;
-		padding: 0.5rem 0.6rem;
-		background: rgba(255, 255, 255, 0.78);
-		backdrop-filter: blur(10px);
-		-webkit-backdrop-filter: blur(10px);
-		border-radius: 14px;
-		box-shadow: 0 4px 18px rgba(var(--gray), 0.18);
-		z-index: 5;
-	}
-	#graph-search {
-		width: 220px;
-		padding: 0.4rem 0.75rem;
-		border: 1px solid transparent;
-		border-radius: 10px;
-		font-size: 0.9rem;
-		background: rgba(var(--gray-light), 0.45);
-		color: rgb(var(--black));
-	}
-	#graph-search:focus {
-		outline: none;
-		background: white;
-		border-color: rgba(var(--accent-rgb), 0.45);
-		box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
-	}
-	.graph-legend {
-		display: flex;
-		align-items: center;
-		gap: 0.85rem;
-		color: rgb(var(--gray-dark));
-		font-size: 0.88rem;
-	}
-	.legend-item {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.4rem;
-	}
-	.legend-label {
-		user-select: none;
-		color: rgb(var(--gray-dark));
-	}
-	/* 圆球本身就是按钮 */
-	.dot-btn {
-		width: 18px;
-		height: 18px;
-		padding: 0;
-		border-radius: 50%;
-		border: 2px solid transparent;
-		cursor: pointer;
-		opacity: 0.4;
-		transition: 0.15s ease;
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
-	}
-	.dot-btn:hover { transform: scale(1.12); opacity: 0.85; }
-	.dot-btn.is-active {
-		opacity: 1;
-		border-color: rgba(255, 255, 255, 0.95);
-		box-shadow: 0 0 0 2px currentColor, 0 1px 3px rgba(0, 0, 0, 0.2);
-	}
-	.dot-btn.dot-post { background: #c2823c; color: rgba(194, 130, 60, 0.45); }
-	.dot-btn.dot-tag { background: #4f46b5; color: rgba(79, 70, 181, 0.45); }
-	#graph-reset {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 30px;
-		height: 30px;
-		border: none;
-		border-radius: 50%;
-		background: transparent;
-		cursor: pointer;
-		color: rgb(var(--gray));
-		transition: 0.15s ease;
-	}
-	#graph-reset:hover {
-		background: rgba(var(--accent-rgb), 0.1);
-		color: rgb(var(--accent));
-	}
-
+	/* 工具栏：在欢迎语右侧 */
 	.graph-tooltip {
 		position: absolute;
 		pointer-events: none;
@@ -300,23 +189,18 @@ const graphData = { nodes, links };
 		transform: translateX(-50%);
 		margin: 0;
 		padding: 0.35rem 0.85rem;
-		color: rgb(var(--gray));
-		font-size: 0.78rem;
-		background: rgba(255, 255, 255, 0.72);
-		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
-		border-radius: 999px;
+		color: rgba(var(--gray), 0.4);
+		font-size: 1.05rem;
+		background: transparent;
 		white-space: nowrap;
 		pointer-events: none;
+		transition: opacity 0.5s ease;
+		opacity: 1;
+		z-index: 3;
+		text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 	}
-	@media (max-width: 720px) {
-		.graph-toolbar {
-			top: 0.6rem;
-			right: 0.6rem;
-			left: 0.6rem;
-			flex-wrap: wrap;
-		}
-		#graph-search { width: 100%; }
+	.graph-hint.fade-out {
+		opacity: 0;
 	}
 </style>
 
@@ -391,9 +275,12 @@ const graphData = { nodes, links };
 	}
 
 	// 根据画布尺寸算力的缩放系数：以 1200×800 为基准，画布越大节点铺得越开、斥力越强
-	// 根据画布尺寸算力的缩放系数：以 1200×800 为基准，画布越大节点铺得越开、斥力越强
 	function forceScale() {
-		return Math.sqrt((width * height) / (1200 * 800));
+		// 基准：1200×800
+		const scaleX = width / 1200;
+		const scaleY = height / 800;
+		// 对于力的计算，使用几何平均以保持各向同性
+		return Math.sqrt(scaleX * scaleY);
 	}
 	// 把引力(连线距离)和斥力(charge)按画布尺寸重新设置；center/x/y 也随尺寸居中
 	function applyForces() {
@@ -408,7 +295,7 @@ const graphData = { nodes, links };
 				if (a.type === b.type) {
 					return 10 * s;
 				} else {
-					return 45 * s;
+					return 22 * s; // 31.5 * 0.7 ≈ 22，再缩小30%
 				}
 			})
 			.strength((l: GLink) => {
@@ -418,12 +305,12 @@ const graphData = { nodes, links };
 			});
 		const s = forceScale();
 		(simulation.force('charge') as any)
-			.strength(-900 * s)
-			.distanceMax(800 * s);
+			.strength(-630 * s) // 900 * 0.7 = 630，减小30%斥力让簇更近
+			.distanceMax(560 * s); // 800 * 0.7 = 560，同步缩小作用范围
 		simulation.force('center', d3.forceCenter(width / 2, height / 2));
-		// 向心力加强，防止节点溢出画布
-		simulation.force('x', d3.forceX(width / 2).strength(0.15));
-		simulation.force('y', d3.forceY(height / 2).strength(0.25));
+		// 向心力也按画布比例缩放，保持力的平衡
+		simulation.force('x', d3.forceX(width / 2).strength(0.08 * s));
+		simulation.force('y', d3.forceY(height / 2).strength(0.25 * s));
 	}
 
 	// 让风线 canvas 适配容器尺寸与设备像素比
@@ -480,7 +367,7 @@ const graphData = { nodes, links };
 				.id((d) => d.id)
 				.distance((l) => {
 					const s = l.source as GNode, t = l.target as GNode;
-					return s.type === t.type ? 28 : 80; // 占位值，会被 applyForces 覆盖
+					return s.type === t.type ? 28 : 39; // 占位值，会被 applyForces 覆盖（56 * 0.7 ≈ 39）
 				})
 				.strength((l: any) => {
 					const s = l.source as GNode, t = l.target as GNode;
@@ -488,11 +375,11 @@ const graphData = { nodes, links };
 				}),
 		)
 		// 强斥力 + 大作用范围，让节点天然铺到画布尺度
-		.force('charge', d3.forceManyBody().strength(-450).distanceMax(800))
+		.force('charge', d3.forceManyBody().strength(-315).distanceMax(560)) // 450 * 0.7 = 315, 800 * 0.7 = 560
 		// 整体质心固定在画布中心
 		.force('center', d3.forceCenter(width / 2, height / 2))
-		// 水平方向收一点（避免横向连线被拉太长），垂直方向紧
-		.force('x', d3.forceX(width / 2).strength(0.07))
+		// 水平向心力适度减弱，让节点松散填充画布宽度但不溢出
+		.force('x', d3.forceX(width / 2).strength(0.05))
 		.force('y', d3.forceY(height / 2).strength(0.18))
 		// 碰撞半径缩小，让簇内节点能靠得更近（只留出 label 最小空间）
 		.force('collide', d3.forceCollide<GNode>().radius((d) => radius(d) + 2))
@@ -554,7 +441,7 @@ const graphData = { nodes, links };
 		.attr('font-size', (d) => (d.type === 'tag' ? 12 : 10))
 		.attr('font-weight', (d) => (d.type === 'tag' ? 600 : 400))
 		.attr('fill', '#333')
-		.attr('dx', (d) => radius(d) + 4)
+		.attr('dx', (d) => (radius(d) + 4))
 		.attr('dy', '0.32em')
 		.attr('paint-order', 'stroke')
 		.attr('stroke', 'rgba(255,255,255,0.85)')
@@ -714,8 +601,8 @@ const graphData = { nodes, links };
 
 	// ticking
 	simulation.on('tick', () => {
-		// 边界约束：margin 按画布尺寸比例，大画布留白更大
-		const margin = Math.min(width, height) * 0.05; // 较小边的 5%
+		// 边界约束：增大 margin，给标签文字留出空间
+		const margin = Math.min(width, height) * 0.08; // 增加到 8%
 		for (const n of raw.nodes) {
 			if (n.x != null) n.x = Math.max(margin, Math.min(width - margin, n.x));
 			if (n.y != null) n.y = Math.max(margin, Math.min(height - margin, n.y));
@@ -842,6 +729,38 @@ const graphData = { nodes, links };
 		emitGust();
 		setTimeout(loop, 700 + Math.random() * 900);
 	})();
+
+	// 用户交互后自动淡出提示文字
+	function setupHintFadeOut() {
+		const hintEl = document.querySelector('.graph-hint') as HTMLElement | null;
+		const container = document.getElementById('tag-graph');
+
+		if (!hintEl || !container) return;
+
+		let hintTimer: number | null = null;
+		let hintFaded = false;
+
+		function fadeOutHint() {
+			if (hintFaded) return;
+			hintFaded = true;
+			if (hintTimer) clearTimeout(hintTimer);
+			hintTimer = window.setTimeout(() => {
+				hintEl.classList.add('fade-out');
+			}, 3000);
+		}
+
+		// 监听用户交互
+		container.addEventListener('mousedown', fadeOutHint, { once: true });
+		container.addEventListener('wheel', fadeOutHint, { once: true, passive: true });
+		container.addEventListener('touchstart', fadeOutHint, { once: true, passive: true });
+	}
+
+	// 确保 DOM 加载完成后再设置
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', setupHintFadeOut);
+	} else {
+		setupHintFadeOut();
+	}
 
 
 </script>

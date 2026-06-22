@@ -98,6 +98,8 @@ p {
 .prose img {
 	display: block;
 	margin: 1.2em 0;
+	/* 让白底融入页面背景纹理，深色内容保持清晰 */
+	mix-blend-mode: multiply;
 }
 /* 引用块内部恢复块级元素之间的间距 */
 .prose blockquote > * + * {
@@ -140,24 +142,32 @@ p {
 	border-collapse: collapse;
 	width: 100%;
 	margin: 1.5em 0;
+	/* 半透明底，能透出背景但保证文字可读 */
+	background: rgba(255, 255, 255, 0.5);
+	backdrop-filter: blur(2px);
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgba(var(--gray), 0.25);
+	font-size: 0.95em;
 }
 .prose th,
 .prose td {
 	padding: 0.75em 1em;
 	text-align: left;
-	border: 1px solid rgb(var(--gray-light));
+	/* 中性灰分隔线，避免蓝色调 */
+	border: 1px solid #d1d5db;
+	background: transparent;
 }
 .prose th {
-	background: rgba(var(--gray-light), 0.5);
+	background: #757578;
 	font-weight: 700;
-	color: rgb(var(--gray-dark));
+	color: #000;
 	text-align: center;
 }
-.prose tbody tr:nth-child(even) {
-	background: rgba(var(--gray-light), 0.2);
-}
-.prose tbody tr:hover {
-	background: rgba(var(--gray-light), 0.4);
+/* 所有数据行统一，不做奇偶斑马纹 */
+.prose tbody tr:hover td {
+	background: rgba(var(--accent-rgb), 0.08);
 }
 textarea {
 	width: 100%;
@@ -182,6 +192,9 @@ code {
 pre {
 	padding: 1.5em;
 	border-radius: 8px;
+	font-size: 0.85em;
+	max-height: 500px;
+	overflow-y: auto;
 }
 pre > code {
 	all: unset;

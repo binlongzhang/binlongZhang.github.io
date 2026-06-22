@@ -19,7 +19,10 @@ export default defineConfig({
 	markdown: {
 		processor: unified({
 			remarkPlugins: [remarkMath],
-			rehypePlugins: [rehypeKatex],
+			// output: 'html' 让 KaTeX 只输出可见的 HTML 层，
+			// 去掉 MathML(semantics+annotation) 两层重复文本，
+			// 避免标题中的公式被 Astro 提取目录时拼成 mem0mem0mem0
+			rehypePlugins: [[rehypeKatex, { output: 'html' }]],
 		}),
 	},
 	fonts: [
