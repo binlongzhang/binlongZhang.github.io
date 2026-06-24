@@ -79,6 +79,55 @@ const { title, description, pubDate, updatedDate, heroImage, headings = [] } = A
 				margin-right: auto;
 				max-width: 100%;
 				height: auto;
+				cursor: zoom-in;
+			}
+
+			/* 图片放大灯箱 */
+			.lightbox {
+				position: fixed;
+				inset: 0;
+				z-index: 1000;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 2vmin;
+				background: rgba(0, 0, 0, 0.85);
+				opacity: 0;
+				visibility: hidden;
+				transition:
+					opacity 0.25s ease,
+					visibility 0.25s ease;
+				cursor: zoom-out;
+				overflow: auto;
+			}
+			.lightbox.is-open {
+				opacity: 1;
+				visibility: visible;
+				cursor: grab;
+			}
+			.lightbox-content {
+				position: relative;
+				transform-origin: center center;
+				transition: transform 0.15s ease;
+				cursor: grab;
+			}
+			.lightbox-content :global(img) {
+				max-width: 90vw;
+				max-height: 90vh;
+				width: auto;
+				height: auto;
+				border-radius: 8px;
+				box-shadow: var(--box-shadow);
+				display: block;
+			}
+			.lightbox-content :global(svg) {
+				border-radius: 8px;
+				box-shadow: var(--box-shadow);
+				display: block;
+				/* 淡灰色底，避免暗色主题的图衬在近黑遮罩上看不清 */
+				background: #eef0f3;
+				padding: 1.5rem;
+				box-sizing: border-box;
 			}
 			/* 正文标题等差数列：公差 0.25em */
 			.prose :global(h1) {
@@ -102,6 +151,103 @@ const { title, description, pubDate, updatedDate, heroImage, headings = [] } = A
 			}
 			.last-updated-on {
 				font-style: italic;
+			}
+			/* 代码块：顶栏（语言标签 + 折叠按钮） */
+			.prose :global(.code-block) {
+				margin: 1em 0;
+				border-radius: 8px;
+				overflow: hidden;
+				box-shadow: var(--box-shadow);
+			}
+			.prose :global(.code-block__bar) {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 0.4em 0.9em;
+				background: rgb(var(--gray-dark));
+				color: rgba(255, 255, 255, 0.85);
+				font-size: 0.75em;
+				font-family: var(--font-inter);
+			}
+			.prose :global(.code-block__lang) {
+				text-transform: uppercase;
+				letter-spacing: 0.06em;
+				opacity: 0.7;
+			}
+			.prose :global(.code-block__toggle) {
+				border: none;
+				background: rgba(255, 255, 255, 0.12);
+				color: inherit;
+				cursor: pointer;
+				border-radius: 4px;
+				padding: 0.15em 0.7em;
+				font: inherit;
+				line-height: 1.6;
+				transition: background 0.15s ease;
+			}
+			.prose :global(.code-block__toggle:hover) {
+				background: rgba(255, 255, 255, 0.25);
+			}
+			/* 折叠后隐藏代码主体 */
+			.prose :global(.code-block) > :global(pre) {
+				margin: 0;
+				border-radius: 0;
+				box-shadow: none;
+			}
+			.prose :global(.code-block.is-folded) > :global(pre) {
+				display: none;
+			}
+			/* 行号：每行包成 .code-line，用 CSS counter 生成左侧编号 */
+			.prose :global(pre) > :global(code) {
+				counter-reset: code-line;
+			}
+			.prose :global(.code-line) {
+				counter-increment: code-line;
+				display: block;
+				position: relative;
+				padding-left: 3.2em;
+			}
+			/* 空行也要占满一行高度 */
+			.prose :global(.code-line):empty::after {
+				content: ' ';
+				white-space: pre;
+			}
+			.prose :global(.code-line)::before {
+				content: counter(code-line);
+				position: absolute;
+				left: 0;
+				width: 2.3em;
+				text-align: right;
+				color: rgba(var(--gray), 0.9);
+				border-right: 1px solid rgba(var(--gray), 0.35);
+				padding-right: 0.6em;
+				user-select: none;
+			}
+			/* mermaid 图：渲染完成前隐藏原始代码文本，居中展示 SVG */
+			.prose :global(pre.mermaid) {
+				background: none;
+				border: none;
+				padding: 0;
+				text-align: center;
+				visibility: hidden;
+			}
+			.prose :global(pre.mermaid[data-processed='true']) {
+				visibility: visible;
+			}
+			.prose :global(pre.mermaid[data-processed='true']) :global(svg) {
+				cursor: zoom-in;
+			}
+			/* mermaid subgraph 背景框：高透明，避免大块深色背景遮住页面背景 */
+			.prose :global(pre.mermaid) :global(.cluster rect) {
+				fill: rgba(255, 255, 255, 0.04) !important;
+				stroke: rgba(255, 255, 255, 0.18) !important;
+			}
+			/* mermaid 图标题（frontmatter title）：动态注入的 SVG 文本，需用 :global 才能命中 */
+			.prose :global(pre.mermaid) :global(text.flowchartTitleText) {
+				fill: #0a1538 !important;
+				font-size: 34px !important;
+				font-weight: 700 !important;
+				transform: translateY(14px);
 			}
 		</style>
 	</head>
@@ -135,5 +281,239 @@ const { title, description, pubDate, updatedDate, heroImage, headings = [] } = A
 			</article>
 		</main>
 		<Footer />
+
+		<div class="lightbox" id="lightbox">
+			<div class="lightbox-content">
+				<!-- 动态填充 img 或 svg -->
+			</div>
+		</div>
+
+		<script>
+			import mermaid from 'mermaid';
+
+			mermaid.initialize({
+				startOnLoad: false,
+				theme: 'dark',
+				flowchart: {
+					// 调大自动折行阈值：节点文字按内容自然展开，只在显式 <br/> 处换行
+					wrappingWidth: 600,
+					htmlLabels: true,
+					useMaxWidth: true,
+				},
+			});
+
+			// 渲染 mermaid 图，完成后绑定放大事件
+			mermaid.run({ querySelector: '.prose pre.mermaid' }).then(() => {
+				document.querySelectorAll<HTMLPreElement>('.prose pre.mermaid[data-processed="true"]').forEach((pre) => {
+					const svg = pre.querySelector('svg');
+					if (!svg) return;
+					svg.style.cursor = 'zoom-in';
+					pre.addEventListener('click', () => {
+						const lightbox = document.getElementById('lightbox') as HTMLDivElement | null;
+						const lightboxContent = lightbox?.querySelector('.lightbox-content') as HTMLDivElement | null;
+						if (!lightbox || !lightboxContent) return;
+
+						// 清空之前的内容，clone SVG 到灯箱
+						lightboxContent.innerHTML = '';
+						const clonedSvg = svg.cloneNode(true) as SVGElement;
+						clonedSvg.removeAttribute('width');
+						clonedSvg.removeAttribute('height');
+						clonedSvg.style.maxWidth = '90vw';
+						clonedSvg.style.maxHeight = '90vh';
+						// 按 viewBox 比例等比放大到 90vw × 90vh 内最大尺寸
+						const vb = clonedSvg.getAttribute('viewBox');
+						if (vb) {
+							const [, , vbW, vbH] = vb.split(/[ ,]+/).map(Number);
+							if (vbW && vbH) {
+								const fit = Math.min((window.innerWidth * 0.9) / vbW, (window.innerHeight * 0.9) / vbH);
+								clonedSvg.style.width = `${vbW * fit}px`;
+								clonedSvg.style.height = `${vbH * fit}px`;
+							}
+						}
+						lightboxContent.appendChild(clonedSvg);
+
+						lightboxContent.style.transform = 'scale(1)';
+						lightbox.classList.add('is-open');
+						document.body.style.overflow = 'hidden';
+					});
+				});
+			});
+		</script>
+
+		<script>
+			const lightbox = document.getElementById('lightbox') as HTMLDivElement | null;
+			const lightboxContent = lightbox?.querySelector('.lightbox-content') as HTMLDivElement | null;
+
+			let scale = 1;
+			let panX = 0;
+			let panY = 0;
+
+			function applyTransform() {
+				if (!lightboxContent) return;
+				lightboxContent.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+			}
+
+			function openLightbox(src: string, alt: string) {
+				if (!lightbox || !lightboxContent) return;
+				// 清空之前的内容（可能是 SVG），加载图片
+				lightboxContent.innerHTML = '';
+				const img = document.createElement('img');
+				img.src = src;
+				img.alt = alt;
+				lightboxContent.appendChild(img);
+
+				scale = 1;
+				panX = 0;
+				panY = 0;
+				applyTransform();
+				lightbox.classList.add('is-open');
+				document.body.style.overflow = 'hidden';
+			}
+
+			function closeLightbox() {
+				if (!lightbox || !lightboxContent) return;
+				lightbox.classList.remove('is-open');
+				document.body.style.overflow = '';
+				scale = 1;
+				panX = 0;
+				panY = 0;
+				applyTransform();
+			}
+
+			// 给正文图片绑定单击放大
+			document.querySelectorAll<HTMLImageElement>('.prose img').forEach((img) => {
+				img.addEventListener('click', () => openLightbox(img.currentSrc || img.src, img.alt));
+			});
+
+			// 滚轮缩放
+			lightbox?.addEventListener('wheel', (e) => {
+				if (!lightbox.classList.contains('is-open') || !lightboxContent) return;
+				e.preventDefault();
+				const delta = e.deltaY > 0 ? -0.1 : 0.1;
+				scale = Math.min(Math.max(0.5, scale + delta), 5);
+				applyTransform();
+			});
+
+			// 拖拽平移 + 区分点击：按下记录起点，移动超过阈值视为拖拽（平移且不关闭），否则点击关闭
+			let downX = 0;
+			let downY = 0;
+			let startPanX = 0;
+			let startPanY = 0;
+			let dragging = false;
+			let moved = false;
+
+			lightbox?.addEventListener('mousedown', (e) => {
+				if (!lightbox.classList.contains('is-open')) return;
+				e.preventDefault();
+				dragging = true;
+				moved = false;
+				downX = e.clientX;
+				downY = e.clientY;
+				startPanX = panX;
+				startPanY = panY;
+			});
+
+			window.addEventListener('mousemove', (e) => {
+				if (!dragging) return;
+				const dx = e.clientX - downX;
+				const dy = e.clientY - downY;
+				if (!moved && Math.hypot(dx, dy) >= 6) {
+					moved = true;
+					if (lightboxContent) lightboxContent.style.cursor = 'grabbing';
+				}
+				if (moved) {
+					panX = startPanX + dx;
+					panY = startPanY + dy;
+					applyTransform();
+				}
+			});
+
+			window.addEventListener('mouseup', () => {
+				if (!dragging) return;
+				dragging = false;
+				if (lightboxContent) lightboxContent.style.cursor = '';
+				// 未发生拖拽 = 点击 → 关闭
+				if (!moved) closeLightbox();
+			});
+
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') closeLightbox();
+			});
+		</script>
+		<script>
+			// 给正文代码块加行号 + 折叠顶栏（mermaid 图除外）
+			document.querySelectorAll<HTMLPreElement>('.prose pre').forEach((pre) => {
+				if (pre.classList.contains('mermaid')) return;
+				if (pre.closest('.code-block')) return;
+
+				const code = pre.querySelector('code');
+				if (!code) return;
+
+				// 解析语言：Shiki 放在 <pre data-language>，回退到 code 的 language-xxx 类
+				const langClass = Array.from(code.classList).find((c) => c.startsWith('language-'));
+				const lang =
+					pre.dataset.language ||
+					(langClass ? langClass.slice('language-'.length) : '') ||
+					'text';
+
+				// 按行重组：遇到文本里的 \n 切行，保留 Shiki 的彩色 <span>
+				const lineEls: HTMLSpanElement[] = [];
+				let current = document.createElement('span');
+				current.className = 'code-line';
+				const pushLine = () => {
+					lineEls.push(current);
+					current = document.createElement('span');
+					current.className = 'code-line';
+				};
+				const append = (node: ChildNode) => {
+					if (node.nodeType === Node.TEXT_NODE) {
+						const parts = (node.textContent ?? '').split('\n');
+						parts.forEach((part, i) => {
+							if (i > 0) pushLine();
+							if (part) current.appendChild(document.createTextNode(part));
+						});
+					} else if (node.nodeType === Node.ELEMENT_NODE) {
+						current.appendChild(node.cloneNode(true));
+					}
+				};
+				Array.from(code.childNodes).forEach(append);
+				lineEls.push(current);
+				// 去掉结尾空行（源码末尾换行造成的）
+				while (lineEls.length > 1 && !lineEls[lineEls.length - 1].textContent) {
+					lineEls.pop();
+				}
+
+				code.textContent = '';
+				lineEls.forEach((el) => code.appendChild(el));
+
+				// 包容器 + 顶栏
+				const wrapper = document.createElement('div');
+				wrapper.className = 'code-block';
+				pre.parentNode?.insertBefore(wrapper, pre);
+
+				const bar = document.createElement('div');
+				bar.className = 'code-block__bar';
+
+				const label = document.createElement('span');
+				label.className = 'code-block__lang';
+				label.textContent = lang;
+
+				const toggle = document.createElement('button');
+				toggle.className = 'code-block__toggle';
+				toggle.type = 'button';
+				toggle.textContent = '折叠';
+				toggle.setAttribute('aria-expanded', 'true');
+				toggle.addEventListener('click', () => {
+					const folded = wrapper.classList.toggle('is-folded');
+					toggle.textContent = folded ? '展开' : '折叠';
+					toggle.setAttribute('aria-expanded', String(!folded));
+				});
+
+				bar.appendChild(label);
+				bar.appendChild(toggle);
+				wrapper.appendChild(bar);
+				wrapper.appendChild(pre);
+			});
+		</script>
 	</body>
 </html>
