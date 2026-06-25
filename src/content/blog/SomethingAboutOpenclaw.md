@@ -171,7 +171,6 @@ tags: ["LLM Engieering", "AI Coding", "Agent"]
 >   }
 >   return false;
 > }
->
 > ```
 
 ### Configuration
@@ -193,7 +192,6 @@ openclaw --profile rescue gateway --port 19789
 - Remote access
 
   - Preferred: Tailscale（组虚拟网）
-
   - Fallback: SSH tunnel
 
 ### Protocol
@@ -527,9 +525,17 @@ persist"]
 
     Q["running = false
 finally"] --> C
-```
 
+    %% 样式
+    classDef step fill:#e8eefc,stroke:#3a56b0,stroke-width:1.5px,color:#1b2a5c;
+    classDef start fill:#e7f6ec,stroke:#3f9d5a,stroke-width:1.5px,color:#1d5f31;
+
+    class A start;
+    class C,E,F,J,L,P,Q,R,S1,S2,T step;
+    linkStyle default stroke:#8a93a8,stroke-width:1.4px;
+```
 > 注：定时器采用线性表（未采用红黑树、优先队列、时间轮等常见数据结构）
+>
 > 内置在gateway中，用于持久化一个job(`~/.openclaw/cron/jobs.json`)，而后在设定时间唤醒Agent工作，并将结果投递到设定Channel或webhook
 
 - Cron执行会创建background task，与主会话隔离
@@ -549,12 +555,12 @@ finally"] --> C
 
 **Execution styles**
 
-| Style           | --session value       | Runs in                    | Best for                        |
-| --------------- | --------------------- | -------------------------- | ------------------------------- |
-| Main session    | `main`              | Next heartbeat turn        | Reminders, system events        |
-| Isolated        | `isolated`          | Dedicated `cron:<jobId>` | Reports, background chores      |
-| Current session | `current`           | Bound at creation time     | Context-aware recurring work    |
-| Custom session  | `session:custom-id` | Persistent named session   | Workflows that build on history |
+| Style           | --session value       | Runs in                   | Best for                        |
+| --------------- | --------------------- | ------------------------- | ------------------------------- |
+| Main session    | `main`              | Next heartbeat turn       | Reminders, system events        |
+| Isolated        | `isolated`          | Dedicated`cron:<jobId>` | Reports, background chores      |
+| Current session | `current`           | Bound at creation time    | Context-aware recurring work    |
+| Custom session  | `session:custom-id` | Persistent named session  | Workflows that build on history |
 
 **Delivery and output**
 
@@ -565,6 +571,7 @@ finally"] --> C
 ### Heartbeat
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {'edgeLabelBackground':'#ffffff', 'tertiaryColor':'#fff'}}}%%
 graph TB
     subgraph "触发源"
         T1[周期调度<br/>30分钟]
@@ -632,12 +639,13 @@ graph TB
     P1 --> P2
     P2 -.触发.-> T1
 
-    style M3 fill:#fff9c4
-    style S5 fill:#e3f2fd
-    style A2 fill:#ffccbc
-    style A3 fill:#e8f5e9
-    style A4 fill:#ffe0b2
-    style P1 fill:#e1f5fe
+    %% 样式
+    classDef step fill:#e8eefc,stroke:#3a56b0,stroke-width:1.5px,color:#1b2a5c;
+    classDef decision fill:#fdeef0,stroke:#d6708a,stroke-width:1.5px,color:#7a2b3f;
+
+    class S1,S2,S3,A1,E1 decision;
+    class T1,T2,M1,M2,M3,S4,S5,S6,A2,A3,A4,E2,E3,P1,P2 step;
+    linkStyle default stroke:#8a93a8,stroke-width:1.4px;
 ```
 
 - 配置热装载
@@ -668,9 +676,9 @@ graph TB
 
 | 触发者         | 触发条件                                                          | Heartbeat Prompt                                                                                                                                                                          | Provider 标记 |
 | -------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| Gateway 定时器 | 定时触发                                                          | Read HEARTBEAT.md if it exists (workspace context).`<br>`Follow it strictly. Do not infer or repeat old tasks from prior chats. `<br>`If nothing needs attention, reply HEARTBEAT_OK. | heartbeat     |
+| Gateway 定时器 | 定时触发                                                          | Read HEARTBEAT.md if it exists (workspace context).<br>Follow it strictly. Do not infer or repeat old tasks from prior chats. <br>If nothing needs attention, reply HEARTBEAT_OK. | heartbeat     |
 | Cron           | sessionTarget == "main"                                           | A scheduled reminder has been triggered. The reminder content is:`<br><br>`{事件文本} `<br><br>`Please relay this reminder to the user in a helpful and friendly way.                 | cron-event    |
-| Exec           | bash-tools.exec 派生的子进程退出时                                | An async command you ran earlier has completed.`<br>`The result is shown in the system messages above. `<br>`Please relay the command output to the user in a helpful way...          | exec-event    |
+| Exec           | bash-tools.exec 派生的子进程退出时                                | An async command you ran earlier has completed.<br>The result is shown in the system messages above. <br>Please relay the command output to the user in a helpful way...          | exec-event    |
 | Hook           | `curl -X POST http://localhost:3456/wake`（同 Gateway 定时器）  | 同 Gateway 定时器                                                                                                                                                                         | heartbeat     |
 | CLI            | `openclaw system event --text "Reminder" --mode next-heartbeat` | 同 Gateway 定时器                                                                                                                                                                         | heartbeat     |
 
@@ -813,7 +821,7 @@ export default handler;
     - 网络隔离
       - 默认 network: "none"（无网络）
       - 禁止 network: "host"（共享宿主机网络）
-      - 禁止 network: "container:<id>"（加入其他容器网络）
+      - 禁止 network: "container:`<id>`"（加入其他容器网络）
     - 容器权限最小化（硬编码检查）
 - 宿主机配置文件
   - `~/.openclaw/sandbox/` - 元数据目录
@@ -838,7 +846,7 @@ export default handler;
 
 | 检测器                 | 识别的模式                    | 典型场景                                       |
 | ---------------------- | ----------------------------- | ---------------------------------------------- |
-| generic_repeat         | 相同 tool+参数重复 10+ 次     | Agent 反复 `read same_file.txt`              |
+| generic_repeat         | 相同 tool+参数重复 10+ 次     | Agent 反复`read same_file.txt`               |
 | known_poll_no_progress | Polling 工具结果不变 20+ 次   | `process poll` 进程卡住，Agent 一直轮询      |
 | ping_pong              | A-B-A-B 交替 10+ 次且结果不变 | `read`→`write`→`read`→`write`死循环 |
 | global_circuit_breaker | 任意 tool 重复 30+ 次         | 硬阻断，防止极端情况                           |
@@ -863,8 +871,8 @@ export default handler;
 | -------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | minimal        | 1        | `session_status`                                                                                                                                                                                                                                                                                  |
 | coding（默认） | 19       | `read`, `write`, `edit`, `apply_patch`, `exec`, `process`, `web_search`, `web_fetch`, `memory_search`, `memory_get`, `sessions_list`, `sessions_history`, `sessions_send`, `sessions_spawn`, `sessions_yield`, `subagents`, `session_status`, `cron`, `image` |
-| messaging      | 5        | `sessions_list`, `sessions_history`, `sessions_send`, `session_status`, `message`                                                                                                                                                                                                         |
-| full           | 25+      | 所有核心工具，额外包含 `browser`, `canvas`, `gateway`, `nodes`, `agents_list`, `tts` 等                                                                                                                                                                                                 |
+| messaging      | 5        | `sessions_list`, `sessions_history`, `sessions_send`, `session_status`, `message`                                                                                                                                                                               |
+| full           | 25+      | 所有核心工具，额外包含`browser`, `canvas`, `gateway`, `nodes`, `agents_list`, `tts` 等      |
 
 ```ts
 const CORE_TOOL_SECTION_ORDER: Array<{ id: string; label: string }> = [
@@ -956,12 +964,12 @@ execute: async (toolCallId, args, signal, onUpdate?) => {
 }
 ```
 
-| 场景                  | OpenClaw角色 | MCP 对端                                    | 配置位置               | 作用                                                                                                    | 触发条件                                                              |
-| --------------------- | ------------ | ------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Embedded PI Agent     | MCP client   | 外部 MCP server                             | `mcp.servers.<name>` | 把外部 MCP 工具桥接成 `AnyAgentTool`，注入 OpenClaw agent 的 tool 列表                                | -`mcp.servers` 有配置`<br>`- `tools.deny` 未屏蔽 `bundle-mcp` |
-| CLI backend 配置中转  | 配置中转     | 外部 CLI（`claude`/`codex`/`gemini`） | 同上                   | 把 OpenClaw 的 MCP 配置翻译成外部 CLI 的格式                                                            | - CLI backend `bundleMcp: true<br>`- 非 `disableTools`            |
-| 暴露 OpenClaw 工具    | MCP server   | 外部 CLI回调 OpenClaw                       | 无需配置               | 在 `127.0.0.1` 随机端口起 HTTP MCP server，把 OpenClaw 的 core/plugin/channel 工具暴露给外部 CLI 使用 | CLI backend 场景自动叠加                                              |
-| 独立 stdio MCP server | MCP server   | ACP / CC / 其他 MCP client                  | 命令行启动             | 把 OpenClaw 的插件工具（不含 core）以 stdio MCP 协议暴露                                                | 手动执行 `plugin-tools-serve.ts`                                    |
+| 场景                  | OpenClaw角色 | MCP 对端                                    | 配置位置               | 作用                                                                                                   | 触发条件                                                              |
+| --------------------- | ------------ | ------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| Embedded PI Agent     | MCP client   | 外部 MCP server                             | `mcp.servers.<name>` | 把外部 MCP 工具桥接成`AnyAgentTool`，注入 OpenClaw agent 的 tool 列表                                | -`mcp.servers` 有配置<br>- `tools.deny` 未屏蔽 `bundle-mcp` |
+| CLI backend 配置中转  | 配置中转     | 外部 CLI（`claude`/`codex`/`gemini`） | 同上                   | 把 OpenClaw 的 MCP 配置翻译成外部 CLI 的格式                                                           | - CLI backend`bundleMcp: true<br>`- 非 `disableTools`             |
+| 暴露 OpenClaw 工具    | MCP server   | 外部 CLI回调 OpenClaw                       | 无需配置               | 在`127.0.0.1` 随机端口起 HTTP MCP server，把 OpenClaw 的 core/plugin/channel 工具暴露给外部 CLI 使用 | CLI backend 场景自动叠加                                              |
+| 独立 stdio MCP server | MCP server   | ACP / CC / 其他 MCP client                  | 命令行启动             | 把 OpenClaw 的插件工具（不含 core）以 stdio MCP 协议暴露                                               | 手动执行`plugin-tools-serve.ts`                                     |
 
 ## Node
 
@@ -1125,12 +1133,12 @@ export function createInboundDebouncer<T>(params: {
 
 - 群组触发门控（可选）
 
-| 场景             | 默认行为             | 配置调整                              | 说明                                     |
-| ---------------- | -------------------- | ------------------------------------- | ---------------------------------------- |
-| 被 @             | 响应                 | 无需配置                              | 所有 channel 都支持                      |
-| 未被 @           | 不响应               | 设置 `requireMention: false` 可响应 | 默认门控，避免刷屏                       |
-| reply bot 消息   | 响应（部分 channel） | 自动生效                              | Telegram/Zalo 支持，视为隐式 @           |
-| Owner 发控制命令 | 响应（即使未 @）     | 自动生效                              | 如 `/status`、`/verbose`，owner 特权 |
+| 场景             | 默认行为             | 配置调整                             | 说明                                    |
+| ---------------- | -------------------- | ------------------------------------ | --------------------------------------- |
+| 被 @             | 响应                 | 无需配置                             | 所有 channel 都支持                     |
+| 未被 @           | 不响应               | 设置`requireMention: false` 可响应 | 默认门控，避免刷屏                      |
+| reply bot 消息   | 响应（部分 channel） | 自动生效                             | Telegram/Zalo 支持，视为隐式 @          |
+| Owner 发控制命令 | 响应（即使未 @）     | 自动生效                             | 如`/status`、`/verbose`，owner 特权 |
 
 - ACK(可选)
 
@@ -1539,7 +1547,7 @@ Openclaw 采用AgentSkills-compatible的skill目录用于指导agent如何使用
 | -------------------------------- | -------- | ----------------------------------------------------------------------------- |
 | `info`                         | Property | Engine id、name、version，以及是否由其接管 compaction                         |
 | `ingest(params)`               | Method   | 存储单条消息                                                                  |
-| `assemble(params)`             | Method   | 为一次模型运行构建上下文（返回 `AssembleResult`）                           |
+| `assemble(params)`             | Method   | 为一次模型运行构建上下文（返回`AssembleResult`）                            |
 | `compact(params)`              | Method   | 摘要/裁剪上下文                                                               |
 | `bootstrap(params)`            | Method   | 为会话初始化引擎状态。引擎首次见到该会话时调用一次（如导入历史）              |
 | `ingestBatch(params)`          | Method   | 以批方式摄入一个完整 turn。在一次运行结束后调用，一次性带入该 turn 的所有消息 |
@@ -1605,7 +1613,7 @@ Agent workspace为agent的主目录（默认cwd）`~/.openclaw/`，其存储agen
 | `memory/YYYY-MM-DD.md` | • Daily memory log (one file per day).<br>• Recommended to read today + yesterday on session start.                                                                                      |
 | `MEMORY.md` (optional) | • Curated long-term memory.<br>• Only load in the main, private session (not shared/group contexts).                                                                                     |
 | `skills/` (optional)   | • Workspace-specific skills.<br>• Overrides managed/bundled skills when names collide.                                                                                                   |
-| `canvas/` (optional)   | • Canvas UI files for node displays (for example `canvas/index.html`).                                                                                                                      |
+| `canvas/` (optional)   | • Canvas UI files for node displays (for example`canvas/index.html`).                                                                                                                       |
 
 ### Embedded Pi Agent
 
@@ -1637,7 +1645,7 @@ flowchart TD
     end
     subgraph G3 [" "]
         direction LR
-        Hook[Plugin Hook] ~~~ HookNote["1. before_model_resolve(prompt) -> model<br/>2. before_agent_start(prompt) -> model, prompt 实参<br/>&nbsp;&nbsp;&nbsp;（system & user 的追加和替换）"]
+        Hook[Plugin Hook] ~~~ HookNote["1. before_model_resolve(prompt) -> model<br/>2. before_agent_start(prompt) -> model, prompt 实参<br/>   （system & user 的追加和替换）"]
     end
     subgraph G4 [" "]
         direction LR
@@ -1662,9 +1670,9 @@ flowchart TD
     Attempt -->|Assistant Error| Assistant
     Attempt -->|success| Success
 
-    Overflow["1. If (本轮没 compaction) And <br/> (&lt; MAX_OVERFLOW_COMPACTION_ATTEMPTS)<br/>&nbsp;&nbsp;a. Hook before_compaction (只读)<br/>&nbsp;&nbsp;b. ContextEngine.compact<br/>&nbsp;&nbsp;c. Hook after_compaction (只读)<br/>2. 备用压缩策略<br/>&nbsp;&nbsp;截断 session 中超长的工具结果"]
-    Prompt["1. 常规错误() return<br/>2. Auth 类且 token 没刷新，刷新重试<br/>3. 其他：<br/>&nbsp;&nbsp;记录 Profile 失败<br/>&nbsp;&nbsp;存在可用 profile，切换重试<br/>&nbsp;&nbsp;否则 throw error"]
-    Assistant["1. think 仍旧可降级，调整 thinklevel，重试<br/>2. auth 类 尝试 refresh 后重试<br/>3. 超时等失败：<br/>&nbsp;&nbsp;记录 Profile 失败<br/>&nbsp;&nbsp;存在可用 profile，切换重试<br/>&nbsp;&nbsp;否则 throw error"]
+    Overflow["1. If (本轮没 compaction) And <br/> (< MAX_OVERFLOW_COMPACTION_ATTEMPTS)<br/>  a. Hook before_compaction (只读)<br/>  b. ContextEngine.compact<br/>  c. Hook after_compaction (只读)<br/>2. 备用压缩策略<br/>  截断 session 中超长的工具结果"]
+    Prompt["1. 常规错误() return<br/>2. Auth 类且 token 没刷新，刷新重试<br/>3. 其他：<br/>  记录 Profile 失败<br/>  存在可用 profile，切换重试<br/>  否则 throw error"]
+    Assistant["1. think 仍旧可降级，调整 thinklevel，重试<br/>2. auth 类 尝试 refresh 后重试<br/>3. 超时等失败：<br/>  记录 Profile 失败<br/>  存在可用 profile，切换重试<br/>  否则 throw error"]
     Success[return payload]
 
     %% ===== 四个分支汇聚后回 MAX_RUN_LOOP =====
@@ -1697,7 +1705,6 @@ flowchart TD
     linkStyle default stroke:#8a93a8,stroke-width:1.4px;
 ```
 
-
 ```mermaid
 ---
 title: runPiAgent
@@ -1709,30 +1716,29 @@ flowchart TD
         direction LR
         Env[运行环境创建] ~~~ EnvNote["1. 根据配置是否为沙盒模式进行切换<br/>2. 基于文件系统目录实现"]
     end
-    
     subgraph G2 [" "]
         direction LR
         SysPrompt[构建 systemPrompt]
-        
-        
-        SysPrompt ~~~ SysPromptNote["1. 装入 Skill<br/>2. 装入 workspaceDir 下 bootstrap 文件，并根据 prompt 预算注入 systemPrompt<br/>3. 确定 Agent 工作区和读写策略<br/>4. 收集整理可用 tool 列表<br/>&nbsp;&nbsp;&nbsp;a. 注册 PluginHook-before_tool_call(toolInfo)->(param,execInfo)<br/>5. runtimeInfo（OS、Node、shell、channel、capabilities、channelActions、时区等）<br/>6. 整理并拼接 systemPrompt"]
-        
+      
+      
+        SysPrompt ~~~ SysPromptNote["1. 装入 Skill<br/>2. 装入 workspaceDir 下 bootstrap 文件，并根据 prompt 预算注入 systemPrompt<br/>3. 确定 Agent 工作区和读写策略<br/>4. 收集整理可用 tool 列表<br/>   a. 注册 PluginHook-before_tool_call(toolInfo)->(param,execInfo)<br/>5. runtimeInfo（OS、Node、shell、channel、capabilities、channelActions、时区等）<br/>6. 整理并拼接 systemPrompt"]
+      
         SysPromptNote ~~~ FilesNote["AGENTS.md<br/>SOUL.md<br/>TOOLS.md<br/>IDENTITY.md<br/>USER.md<br/>HEARTBEAT.md<br/>BOOTSTRAP.md（名字里叫 bootstrap 的通常指这一份）<br/>MEMORY.md 优先，没有则 memory.md（二选一，避免重复）"]
     end
 
     subgraph G3 [" "]
         direction LR
-        SessionMgmt[会话管理] ~~~ SessionMgmtNote["1. 会话文件的准备与修复<br/>2. Context Engine bootstrap<br/>3. prepareSessionManager<br/>&nbsp;&nbsp;&nbsp;a. 为 pi-coding-agent 的 SessionManager 持久性 bug 打补丁<br/>4. 对齐自动 compaction 和 contextEngine 信息<br/>5. 将客户端工具塞入 custom tool<br/>6. 创建 agentSession<br/>&nbsp;&nbsp;&nbsp;a. PluginHook-before_message_write(messages)->messages<br/>&nbsp;&nbsp;&nbsp;b. PluginHook-tool_result_persist(toolExecInfo)->messages"]
+        SessionMgmt[会话管理] ~~~ SessionMgmtNote["1. 会话文件的准备与修复<br/>2. Context Engine bootstrap<br/>3. prepareSessionManager<br/>   a. 为 pi-coding-agent 的 SessionManager 持久性 bug 打补丁<br/>4. 对齐自动 compaction 和 contextEngine 信息<br/>5. 将客户端工具塞入 custom tool<br/>6. 创建 agentSession<br/>   a. PluginHook-before_message_write(messages)->messages<br/>   b. PluginHook-tool_result_persist(toolExecInfo)->messages"]
     end
 
     subgraph G4 [" "]
         direction LR
-        StreamFn["streamFn 注册一组回调<br/>请求 LLM 前 Pipeline"] ~~~ StreamFnNote["1. 协议适配<br/>2. debug 处理<br/>3. 上下文裁剪<br/>&nbsp;&nbsp;&nbsp;a. tool、toolRes、thinkingContent 等裁剪<br/>&nbsp;&nbsp;&nbsp;b. 常见模型 tool 场景下输出异常错误 fix（kimi等json结尾容易有额外信息影响解析，裁剪）"]
+        StreamFn["streamFn 注册一组回调<br/>请求 LLM 前 Pipeline"] ~~~ StreamFnNote["1. 协议适配<br/>2. debug 处理<br/>3. 上下文裁剪<br/>   a. tool、toolRes、thinkingContent 等裁剪<br/>   b. 常见模型 tool 场景下输出异常错误 fix（kimi等json结尾容易有额外信息影响解析，裁剪）"]
     end
 
     subgraph G5 [" "]
         direction LR
-        History[会话历史管理] ~~~ HistoryNote["1. 会话恢复历史，按策略校验、截断历史/工具结果<br/>2. 历史写回 agent<br/>3. contextEngine.assemble 可用，在其基础上再进行一轮 systemPrompt 装配<br/>4. Pi Session 订阅、活跃 run 的注册与超时<br/>&nbsp;&nbsp;&nbsp;a. PluginHook - after_tool_call()->toolExecInfo 只读"]
+        History[会话历史管理] ~~~ HistoryNote["1. 会话恢复历史，按策略校验、截断历史/工具结果<br/>2. 历史写回 agent<br/>3. contextEngine.assemble 可用，在其基础上再进行一轮 systemPrompt 装配<br/>4. Pi Session 订阅、活跃 run 的注册与超时<br/>   a. PluginHook - after_tool_call()->toolExecInfo 只读"]
     end
 
     subgraph G6 [" "]
@@ -1745,7 +1751,7 @@ flowchart TD
   
     subgraph G8 [" "]
         direction LR
-        PostQuery[发送 query 后处理] ~~~ PostQueryNote["1. 启动 ReplyFlush<br/>2. 等待 Pi-coding-agent 的 compaction 完成，防止后续快照等不一致<br/>&nbsp;&nbsp;&nbsp;a. Hook before_compaction (只读)<br/>&nbsp;&nbsp;&nbsp;b. Hook after_compaction (只读)<br/>3. 会话外的记忆/索引与本轮对齐<br/>4. 补充可观测性<br/>5. Hook agent_end（只读，偏向于 agent 执行结果）<br/>6. Hook llm_output（只读，偏向于 llm 执行结果）"]
+        PostQuery[发送 query 后处理] ~~~ PostQueryNote["1. 启动 ReplyFlush<br/>2. 等待 Pi-coding-agent 的 compaction 完成，防止后续快照等不一致<br/>   a. Hook before_compaction (只读)<br/>   b. Hook after_compaction (只读)<br/>3. 会话外的记忆/索引与本轮对齐<br/>4. 补充可观测性<br/>5. Hook agent_end（只读，偏向于 agent 执行结果）<br/>6. Hook llm_output（只读，偏向于 llm 执行结果）"]
     end
 
     Start --> G1
@@ -1775,8 +1781,11 @@ flowchart TD
 ```
 
 **Local Models**
+
 - Recommended: LM Studio + large local model (Responses API)
+
 > https://lmstudio.ai/
+
 - vLLM, LiteLLM, OAI-proxy, or custom gateways work if they expose an OpenAI-style `/v1` endpoint
 
 ### CLI Agent
@@ -1793,7 +1802,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     Start([runCliAgent])
-    
+  
     subgraph G1 [" "]
         direction LR
         Env[运行环境创建] ~~~ EnvNote["1. 解析 workspace 配置<br/>2. 解析Agent backend配置<br/>3. 解析 bundleMcp 配置"]
@@ -1804,12 +1813,12 @@ flowchart TD
         SysPrompt[补充systemPrompt] ~~~ SysPromptNote["1. 禁用工具调用 Prompt<br/>2. 装入 bootstrap 文件<br/>3. Heartbeat Prompt<br/>4. 上下文文件<br/>5. 工具列表信息<br/>6. 运行时信息"]
     end
     G1 --> G2
-    
+  
     G2 --> Queue
-    
+  
     subgraph Queue ["CLI_RUN_QUEUE"]
         direction TB
-        
+      
         SessionPrep[会话参数准备]-->G3
 
         subgraph G3 [" "]
@@ -1827,7 +1836,7 @@ flowchart TD
           BuildParams ~~~ BuildParamsNote
         end
         G4 --> G5
-        
+      
         subgraph G5 [" "]
           direction LR
           Enqueue[执行任务入队]
@@ -1835,7 +1844,7 @@ flowchart TD
           Enqueue ~~~ EnqueueNote
         end
         G5 --> SubFinish[结束]
-        
+      
         G5 --> TaskStart[任务执行]
 
         subgraph G6 [" "]
@@ -1844,14 +1853,14 @@ flowchart TD
         end
 
         TaskStart[任务执行] --> G6
-        
+      
         subgraph G7 [" "]
           direction LR
           ExecEnvPrep[执行环境准备] ~~~ ExecEnvPrepNote["1. 集成现有环境配置,合并后端特定配置,清除敏感环境变量<br/>2. 解析超时配置<br/>3. 获取进程监控器"]
         end
-        G6-->G7        
+        G6-->G7      
         G7 --> SpawnProc[Spawn子进程]
-        
+      
         subgraph G8 [" "]
           direction LR
           ParseResult[解析子进程结果] ~~~ ParseResultNote["1. 等待子进程结果<br/>2. 解析标准输出/error"]
@@ -1859,24 +1868,24 @@ flowchart TD
         SpawnProc-->G8  
 
 
-        
+      
         G8 --> OutputParse["输出解析<br/>（text/jsonl/json）"]
         G8 --> ErrorHandle["错误处理<br/>（exitCode!=0 throw 异常<br/>1. 无输出超时<br/>2. 总执行超时<br/>3. 其他错误）"]
-        
+      
         ErrorHandle -->SubFinish
         OutputParse -->SubFinish
-        
+      
     end
-    
+  
     Queue --> End([输出处理并记录])
-    
+  
     %% 样式
     classDef step fill:#e8eefc,stroke:#3a56b0,stroke-width:1.5px,color:#1b2a5c;
     classDef note fill:#fff8e6,stroke:#e6c25a,stroke-width:1px,color:#6b5618,text-align:left;
     classDef start fill:#e7f6ec,stroke:#3f9d5a,stroke-width:1.5px,color:#1d5f31;
     classDef container fill:#f8f9ff,stroke:#5a6fb8,stroke-width:2.5px,stroke-dasharray: 8 4,rx:5,ry:5,color:#2d3748;
     classDef subgraphBorder fill:none,stroke:#b8c5e0,stroke-width:2px,color:#4a5568;
-    
+  
     class Start,End,SubFinish start;
     class Env,SysPrompt,TaskStart,QueueStart,SessionPrep,BuildParams,Enqueue,TaskStart,LogPrep,ExecEnvPrep,SpawnProc,ParseResult,ErrorHandle,OutputParse,picturePre step;
     class EnvNote,EnvInitNote,SysPromptNote,SessionPrepNote,BuildParamsNote,EnqueueNote,LogPrepNote,ExecEnvPrepNote,ParseResultNote,ErrorHandleNote,OutputParseNote,picturePreNote note;
@@ -2142,7 +2151,6 @@ flowchart TD
     linkStyle default stroke:#8a93a8,stroke-width:1.4px;
 ```
 
-
 # Analysis
 
 ## How to play with Openclaw？
@@ -2238,6 +2246,7 @@ AI肉眼可见给编程领域带来了巨大的变革，有想法赶紧做，不
 > openclaw的的两个奠基人，完全不同的设计哲学
 
 - Peter Steinberger
+
   > - 奥地利程序员，openclaw开源项目创始人
   > - 14岁时开始编程活动，2011年创立PDF处理技术公司PSPDFKit，2021年以约1亿欧元出售给风投机构Insight Partners后退休
   > - 2025年6月成立Amantus Machina公司开发AI智能体
@@ -2245,6 +2254,7 @@ AI肉眼可见给编程领域带来了巨大的变革，有想法赶紧做，不
   >   《The Future of Vibe Coding》
   >
 - Mario Zechner
+
   > - 奥地利程序员，网名badlogic。12 岁开始编程，早期旧金山移动游戏公司技术主管
   > - libGDX：跨平台游戏框架，2010 年发布，20k+ Star，主导移动端 Java 游戏开发近 10 年。《皇室战争》《神庙逃亡》等爆款基于此开发；2014 年获Duke’s > Choice Award（Java 社区最高荣誉）
   > - 《Beginning Android Games》（2010，中文版《Android 4 游戏入门经典》）：Android 游戏开发经典入门书
@@ -2253,6 +2263,8 @@ AI肉眼可见给编程领域带来了巨大的变革，有想法赶紧做，不
   > - 2025 年 4–7 月不满现有 AI 编程工具（Claude Code、Cursor 等）的复杂性与不可控，创建极简 AI 编程 Pi（pi-mono）
   >   《Thoughts on slowing the fuck down》
   >
+
+---
 
 关于应该开跑车还是骑马车，我不评论。
 

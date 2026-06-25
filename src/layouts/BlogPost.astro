@@ -243,7 +243,8 @@ const { title, description, pubDate, updatedDate, heroImage, headings = [] } = A
 				stroke: rgba(255, 255, 255, 0.18) !important;
 			}
 			/* mermaid 图标题（frontmatter title）：动态注入的 SVG 文本，需用 :global 才能命中 */
-			.prose :global(pre.mermaid) :global(text.flowchartTitleText) {
+			.prose :global(pre.mermaid) :global(text.flowchartTitleText),
+			.lightbox-content :global(text.flowchartTitleText) {
 				fill: #0a1538 !important;
 				font-size: 34px !important;
 				font-weight: 700 !important;
